@@ -1,6 +1,5 @@
 <?php
 namespace App\Http\Controllers\Api;
-
 use App\Http\Controllers\Controller;
 use App\Models\Lease;
 use Illuminate\Http\Request;
@@ -15,15 +14,16 @@ class LeaseController extends Controller {
             'end_date' => 'required|date|after:start_date',
             'monthly_rent' => 'required|numeric|min:0',
             'security_deposit' => 'nullable|numeric|min:0',
-            'terms' => 'nullable|string',
+            'billing_day' => 'nullable|integer|min:1|max:31',
         ]);
+        $validated['status'] = 'active';
         $lease = Lease::create($validated);
         $lease->unit->update(['status' => 'occupied']);
         return $lease->load(['unit', 'tenant']);
     }
     public function show(Lease $lease) { return $lease->load(['unit.building', 'tenant', 'invoices.payments']); }
     public function update(Request $request, Lease $lease) {
-        $lease->update($request->only(['status','monthly_rent','end_date','terms']));
+        $lease->update($request->only(['status','monthly_rent','end_date','notes']));
         if ($lease->status === 'terminated' || $lease->status === 'expired') {
             $lease->unit->update(['status' => 'vacant']);
         }

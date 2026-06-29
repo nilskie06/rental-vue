@@ -1,6 +1,5 @@
 <?php
 namespace App\Http\Controllers\Api;
-
 use App\Http\Controllers\Controller;
 use App\Models\Maintenance;
 use Illuminate\Http\Request;
@@ -19,6 +18,7 @@ class MaintenanceController extends Controller {
             'description' => 'required|string',
             'priority' => 'required|in:low,medium,high,urgent',
         ]);
+        $validated['status'] = 'new';
         return Maintenance::create($validated)->load('unit');
     }
     public function show(Maintenance $maintenance) { return $maintenance->load('unit'); }

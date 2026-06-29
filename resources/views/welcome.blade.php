@@ -10,6 +10,6 @@
 </head>
 <body class="antialiased bg-slate-50 text-slate-900 min-h-screen flex flex-col">
     <div id="app"></div>
-    <script type="module" src="{{ asset('build/assets/app-5DilvBs2.js') }}"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </body>
 </html>

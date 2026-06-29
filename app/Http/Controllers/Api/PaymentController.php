@@ -1,6 +1,5 @@
 <?php
 namespace App\Http\Controllers\Api;
-
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use Illuminate\Http\Request;
@@ -13,15 +12,17 @@ class PaymentController extends Controller {
             'tenant_id' => 'required|exists:tenants,id',
             'amount' => 'required|numeric|min:0',
             'payment_date' => 'required|date',
-            'payment_method' => 'required|in:cash,bank_transfer,gcash,maya,paymongo',
+            'method' => 'required|string',
             'reference_number' => 'nullable|string|max:100',
             'notes' => 'nullable|string',
         ]);
+        $validated['payment_number'] = 'PAY-' . strtoupper(uniqid());
+        $validated['status'] = 'confirmed';
         $payment = Payment::create($validated);
         $invoice = $payment->invoice;
-        $invoice->paid_amount += $payment->amount;
-        if ($invoice->paid_amount >= $invoice->amount) $invoice->update(['status' => 'paid', 'paid_amount' => $invoice->paid_amount]);
-        elseif ($invoice->paid_amount > 0) $invoice->update(['status' => 'partial', 'paid_amount' => $invoice->paid_amount]);
+        $invoice->amount_paid += $payment->amount;
+        if ($invoice->amount_paid >= $invoice->total_amount) $invoice->update(['status' => 'paid', 'amount_paid' => $invoice->amount_paid]);
+        elseif ($invoice->amount_paid > 0) $invoice->update(['status' => 'partial', 'amount_paid' => $invoice->amount_paid]);
         return $payment->load('invoice.lease.tenant');
     }
     public function show(Payment $payment) { return $payment->load('invoice.lease.tenant'); }

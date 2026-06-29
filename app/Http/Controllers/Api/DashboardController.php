@@ -1,8 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api;
-
 use App\Http\Controllers\Controller;
-use App\Models\{Building, Unit, Tenant, Lease, Invoice, Payment, Maintenance, Expense};
+use App\Models\{Building, Unit, Tenant, Lease, Invoice, Payment, Maintenance};
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller {
@@ -16,12 +15,11 @@ class DashboardController extends Controller {
                 'total_tenants' => Tenant::count(),
                 'active_leases' => Lease::where('status', 'active')->count(),
                 'total_revenue' => Payment::where('status', 'confirmed')->sum('amount'),
-                'pending_invoices' => Invoice::where('status', 'pending')->sum('amount'),
+                'pending_invoices' => Invoice::where('status', 'pending')->sum('total_amount'),
                 'overdue_invoices' => Invoice::where('status', 'overdue')->count(),
-                'open_maintenance' => Maintenance::where('status', 'pending')->count(),
-                'total_expenses' => Expense::sum('amount'),
+                'open_maintenance' => Maintenance::where('status', 'new')->count(),
             ],
-            'recent_payments' => Payment::with('invoice.lease.tenant')->latest()->take(5)->get(),
+            'recent_payments' => Payment::with('lease.tenant')->latest()->take(5)->get(),
             'recent_maintenance' => Maintenance::with('unit')->latest()->take(5)->get(),
         ]);
     }
